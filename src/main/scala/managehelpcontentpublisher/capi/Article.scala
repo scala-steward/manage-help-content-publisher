@@ -18,7 +18,7 @@ object Article {
         .param("show-tags", "all")
         .asString
 
-    val input = read[CapiArticle](response.body)
+    val input = read[CapiArticle.Article](response.body)
 
     Article(
       title = input.response.content.fields.headline,

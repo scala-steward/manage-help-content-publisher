@@ -2,15 +2,18 @@ package managehelpcontentpublisher.sfknowledge
 
 object KnowledgeArticles {
   case class Records(
-      Id: String,
       Body__c: String,
       PublishStatus: String,
-      UrlName: String
+      UrlName: String,
+      TopicAssignments: TopicAssignments,
+      FormattedTags: Option[Seq[String]] = None
   )
 
   case class RootInterface(
-      totalSize: Int,
-      done: Boolean,
       records: Seq[Records]
+  )
+
+  case class TopicAssignments(
+      records: Seq[KnowledgeTags.Records]
   )
 }

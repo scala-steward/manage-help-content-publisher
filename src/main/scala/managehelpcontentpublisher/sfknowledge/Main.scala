@@ -1,10 +1,13 @@
 package managehelpcontentpublisher.sfknowledge
+
 import io.circe._
-import io.circe.generic.codec.DerivedAsObjectCodec.deriveCodec
+import io.circe.generic.auto._
 import io.circe.parser._
-import scalaj.http.{Http, HttpOptions}
+import io.circe.syntax._
+import scalaj.http._
 
 object Main extends App {
+  val knowledgeArticleId = "ka03N0000005quMQAQ";
   case class SfAuthDetails(access_token: String, instance_url: String)
 
   val optConfig = for {
@@ -35,20 +38,24 @@ object Main extends App {
     )
 
   } yield {
-    val sfRecords = knowledgeArticles.records
+    val knowledgeArticleRecords = knowledgeArticles.records
+    println(
+      "knowledgeArticleRecords(0).asJson.spaces2: " + knowledgeArticleRecords(
+        0
+      ).asJson.spaces2
+    )
 
-    val abc = sfAuthDetails
-    getTags(abc)
-    //println("sfRecords: " + sfRecords)
+    val fff = ArticlesWithFormattedTags(knowledgeArticleRecords)
+    println("fff: " + fff)
 
-    //println("sfRecords(0).asJson.spaces2: " + sfRecords(0).asJson.spaces2)
+    ccc(knowledgeArticleRecords)
   }
 
   def getTags(
       sfAuthentication: SfAuthDetails
   ): Either[Error, KnowledgeTags.RootInterface] = {
     val tagsQuery =
-      "Select Id, EntityId, Topic.name from TopicAssignment where EntityId = 'ka03N0000005pneQAA'"
+      "Select Topic.name from TopicAssignment where EntityId = '" + knowledgeArticleId + "'"
 
     val tagsQueryResponse = doSfGetWithQuery(sfAuthentication, tagsQuery)
     println("TAG queryResponse:" + tagsQueryResponse)
@@ -65,13 +72,18 @@ object Main extends App {
     val limit = 200;
 
     val articlesQuery =
-      "SELECT Id,  Body__c, PublishStatus, UrlName from Knowledge__kav where Id in ('ka03N0000005pneQAA')"
+      "SELECT Id,Body__c,PublishStatus,UrlName,(Select topic.name from TopicAssignments) from Knowledge__kav " +
+        "where ID='ka03N0000005quMQAQ'"
 
     val articlesQueryResponse =
       doSfGetWithQuery(sfAuthentication, articlesQuery)
+
     println("ARTICLE queryResponse:" + articlesQueryResponse)
+
     val articlesResponse =
-      decode[KnowledgeArticles.RootInterface](articlesQueryResponse)
+      decode[KnowledgeArticles.RootInterface](articlesQueryResponse) map { billingAccountsObject =>
+        billingAccountsObject
+      }
 
     println("ARTICLE response:" + articlesResponse)
     articlesResponse
@@ -100,7 +112,26 @@ object Main extends App {
       )
       .asString
       .body
-
   }
 
+  def ccc(recordList: Seq[KnowledgeArticles.Records]): Unit = {
+
+    val tags = recordList
+      .map(a => a.TopicAssignments)
+      .map(a => a.records)
+      .map(a => a.map(b => b.Topic.Name))
+      .head
+    println("tags:" + tags)
+
+    tags
+  }
+  object ArticlesWithFormattedTags {
+    def apply(
+        recordList: Seq[KnowledgeArticles.Records]
+    ): Unit = {
+
+      val recordListWithincrementedGDPRAttempts =
+        recordList.map(a => a.copy(FormattedTags = Some(a.TopicAssignments.records.map(b => b.Topic.Name))))
+    }
+  }
 }

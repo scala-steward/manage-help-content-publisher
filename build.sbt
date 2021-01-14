@@ -19,3 +19,7 @@ libraryDependencies ++= Seq(
 libraryDependencies ++= Seq(
   "org.scalaj" %% "scalaj-http" % "2.4.2"
 )
+
+libraryDependencies ++= Seq(
+  "org.jsoup" % "jsoup" % "1.6.1"
+)

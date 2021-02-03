@@ -1,65 +1,75 @@
 package htmlToJsonTranslator
-import io.circe.generic.auto._
-import io.circe.syntax._
 import org.jsoup.Jsoup
+import org.jsoup.nodes.{Element, Node}
 import org.jsoup.select.Elements
 
 import scala.jdk.CollectionConverters._
 object Main extends App {
 
-  case class ContentArray(
-      `type`: String,
-      contentString: String
-  )
-  case class Body(
-      `type`: String,
-      contentArray: Seq[ContentArray]
-  )
-  case class JsonBody(
-      body: Seq[Body]
-  )
+  sealed trait HelpArticleTag {
+    def `type`: String
+  }
+
+  case class TextTag(content: String) extends HelpArticleTag {
+    override def `type`: String = "text"
+  }
+  case class BoldTag() extends HelpArticleTag {
+    override def `type`: String = "bold"
+  }
+
+  case class ItalicTag() extends HelpArticleTag {
+    override def `type`: String = "italic"
+  }
+
+  case class ParagraphTag() extends HelpArticleTag {
+    override def `type`: String = "paragraph"
+  }
 
   val html =
-    """
-    |  <body>
-    |    <p>This is the main content</p><b>This is the important bit</b>
-    |  </body>
-      """.stripMargin
+    "<body><p>my paragraph<b>bold text<i>italic text</i>trailing bold</b></p><p>second paragraph</p></body>"
 
-  generateJson(html, "body")
+  processHtml(html, "body")
 
-  def generateJson(searchIn: String, tagName: String): Unit = {
-    val htmlSection: Elements = getChildElements(html, tagName)
-    println(tagName + ":" + htmlSection)
-    println("======================")
+  def processHtml(html: String, tagName: String): Unit = {
+    println("================================")
 
-    val htmlSectionChildren = htmlSection.asScala.toSeq.head.children()
-    //  println("bodyChildren:" + bodyChildren)
-    //  println("======================")
+    val elements: Seq[Element] = getChildElements(html, tagName).asScala.toSeq
 
-    val bodyChildrenSize = htmlSectionChildren.size()
-    println("bodyChildren size:" + bodyChildrenSize)
-    println("======================")
+    for (element <- elements) {
+      val nodes: Seq[Node] = element.childNodes().asScala.toSeq
 
-    if (bodyChildrenSize > 0) {
-      generateJsonForChildren(htmlSectionChildren)
+      for (node <- nodes) {
+        processChildNode(node, tagName)
+      }
     }
   }
 
-  def generateJsonForChildren(htmlSectionChildren: Elements): Unit = {
-    val fff = htmlSectionChildren.asScala.toSeq.map(a => ContentArray(`type` = a.tagName(), contentString = a.text))
-    //  println("fff:" + fff)
-    //  println("======================")
+  def processChildNode(node: Node, parentNodeName: String): Any = {
 
-    val myBody = Body(
-      `type` = "paragraph",
-      contentArray = fff
-    )
+    val generatedTag: HelpArticleTag = generateTag(node)
+    println("parent:" + parentNodeName + "  |generatedTag:" + generatedTag)
 
-    val myJsonBody = JsonBody(body = Seq(myBody))
-    println("myJsonBody:" + myJsonBody)
-    println("myJsonBody.asJson.spaces2:" + myJsonBody.asJson.spaces2)
+    if (nodeHasChildren(node)) {
+
+      for (childNode <- node.childNodes().asScala.toSeq) {
+        processChildNode(childNode, node.nodeName())
+      }
+    }
   }
+
+  def generateTag(node: Node): HelpArticleTag = {
+    node.nodeName() match {
+      case "b"     => BoldTag()
+      case "i"     => ItalicTag()
+      case "#text" => TextTag(content = node.toString)
+      case "p"     => ParagraphTag()
+    }
+  }
+
+  def nodeHasChildren(node: Node): Boolean = {
+    node.childNodes().size() > 0
+  }
+
   def getChildElements(searchIn: String, tagName: String): Elements = {
     Jsoup.parse(searchIn).select(tagName)
   }

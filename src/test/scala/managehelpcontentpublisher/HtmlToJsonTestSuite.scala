@@ -217,6 +217,20 @@ object HtmlToJsonTestSuite extends TestSuite {
                                             |  }
                                             |]""".stripMargin
       }
+      test("immediately after opening p tag") {
+        HtmlToJson("<p><br>Please note that will need to give at least 3 days notice.</p>")
+          .render(indent = 2) ==> """[
+                                            |  {
+                                            |    "element": "p",
+                                            |    "content": [
+                                            |      {
+                                            |        "element": "text",
+                                            |        "content": "Please note that will need to give at least 3 days notice."
+                                            |      }
+                                            |    ]
+                                            |  }
+                                            |]""".stripMargin
+      }
     }
 
     test("Element a") {

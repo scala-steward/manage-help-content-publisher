@@ -37,8 +37,8 @@ object HtmlToJson {
     def lineBreaksRemoved(e: Element): Element = {
 
       def remove(br: Element): Unit = {
-        br.previousSibling.wrap("<p>")
-        br.nextSibling.wrap("<p>")
+        Option(br.previousSibling).foreach(_.wrap("<p>"))
+        Option(br.nextSibling).foreach(_.wrap("<p>"))
         br.remove()
       }
 

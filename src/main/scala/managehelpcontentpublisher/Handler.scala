@@ -11,6 +11,9 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest
 import scala.util.Try
 import upickle.default._
 
+import java.io.File
+import scala.io.Source
+
 object Handler {
 
   def handleRequest(event: APIGatewayProxyRequestEvent, context: Context): APIGatewayProxyResponseEvent = {
@@ -32,11 +35,15 @@ object Handler {
     response
   }
 
-  def main(args: Array[String]): Unit =
-    result(args(0)) match {
+  def main(args: Array[String]): Unit = {
+    val inFile = Source.fromFile(new File(args(0)))
+    val input = inFile.mkString
+    inFile.close()
+    result(input) match {
       case Left(e)    => println(s"Failed: ${e.reason}")
       case Right(obj) => println(s"Success!: ${obj.render(indent = 2)}")
     }
+  }
 
   private case class AwsConfig(region: Region, bucketName: String, articlesFolder: String, topicsFolder: String)
   private case class Config(stage: String, awsConfig: AwsConfig)
@@ -63,10 +70,11 @@ object Handler {
     folder = config.awsConfig.articlesFolder
   ) _
 
-  private def result(articleJsonString: String) = for {
-    article <- Try(read[Article](articleJsonString)).toEither.left.map(e =>
+  private def result(jsonString: String) = for {
+    input <- Try(read[InputModel](jsonString)).toEither.left.map(e =>
       Failure(s"Failed to read article from input: ${e.getMessage}")
     )
+    article = Article.fromInput(input.article)
     json <- Right(toJson(article))
     _ <- storeArticleInS3(s"${article.path}.json", json)
   } yield json

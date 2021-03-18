@@ -1,9 +1,11 @@
 package managehelpcontentpublisher
 
-import upickle.default._
-
 case class Topic(path: String, name: String)
 
 object Topic {
-  implicit val reader: Reader[Topic] = macroR
+
+  def fromSalesforceDataCategory(cat: String): Topic = Topic(
+    path = cat.stripSuffix("__c"),
+    name = "TODO" // TODO: fill in when request body complete
+  )
 }

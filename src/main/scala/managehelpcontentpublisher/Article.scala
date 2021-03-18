@@ -1,9 +1,13 @@
 package managehelpcontentpublisher
 
-import upickle.default._
-
 case class Article(title: String, body: String, path: String, topics: Seq[Topic])
 
 object Article {
-  implicit val reader: Reader[Article] = macroR
+
+  def fromInput(input: InputArticle): Article = Article(
+    title = input.title,
+    body = input.body,
+    path = input.urlName,
+    topics = input.dataCategories.map(Topic.fromSalesforceDataCategory)
+  )
 }

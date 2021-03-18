@@ -3,8 +3,15 @@ import Dependencies._
 ThisBuild / scalaVersion := "2.13.5"
 
 lazy val root = (project in file("."))
+  .enablePlugins(RiffRaffArtifact)
   .settings(
     name := "manage-help-content-publisher",
+    assemblyJarName := s"${name.value}.jar",
+    riffRaffPackageType := assembly.value,
+    riffRaffUploadArtifactBucket := Option("riffraff-artifact"),
+    riffRaffUploadManifestBucket := Option("riffraff-builds"),
+    riffRaffManifestProjectName := "manage-help-content-publisher",
+    riffRaffArtifactResources += (file("cfn.yaml"), "cfn/cfn.yaml"),
     libraryDependencies ++= Seq(
       http,
       circeCore,

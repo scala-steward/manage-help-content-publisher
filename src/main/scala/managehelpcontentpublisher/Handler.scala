@@ -7,12 +7,12 @@ import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.regions.Region.EU_WEST_1
 import software.amazon.awssdk.services.s3.S3Client
 import software.amazon.awssdk.services.s3.model.PutObjectRequest
-
-import scala.util.Try
 import upickle.default._
 
 import java.io.File
 import scala.io.Source
+import scala.sys.env
+import scala.util.Try
 
 object Handler {
 
@@ -22,6 +22,7 @@ object Handler {
     def logInfo(message: String): Unit = logger.log(s"INFO: $message")
     def logError(message: String): Unit = logger.log(s"ERROR: $message")
 
+    logInfo(s"Using config: $config")
     logInfo(s"Input: ${event.getBody}")
     val response = result(event.getBody) match {
       case Left(e) =>
@@ -36,6 +37,7 @@ object Handler {
   }
 
   def main(args: Array[String]): Unit = {
+    println(s"Using config: $config")
     val inFile = Source.fromFile(new File(args(0)))
     val input = inFile.mkString
     inFile.close()
@@ -49,7 +51,7 @@ object Handler {
   private case class Config(stage: String, awsConfig: AwsConfig)
 
   private val config = {
-    val stage = "DEV"
+    val stage = env.getOrElse("stage", "DEV")
     Config(
       stage,
       AwsConfig(
@@ -96,6 +98,7 @@ object Handler {
           .builder()
           .bucket(bucketName)
           .key(s"$folder/$fileName")
+          .contentType("application/json")
           .build(),
         RequestBody.fromString(content.render())
       )

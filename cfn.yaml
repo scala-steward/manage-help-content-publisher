@@ -29,13 +29,26 @@ Resources:
     DependsOn: LogGroup
     Properties:
       FunctionName: !Sub ${AppName}-${Stage}
+      Description: >
+        Codebase: https://github.com/guardian/manage-help-content-publisher.
+      Policies:
+        - Statement:
+            - Sid: S3BucketPolicy
+              Effect: Allow
+              Action:
+                - s3:ListBucket
+                - s3:GetObject
+                - s3:PutObject
+                - s3:DeleteObject
+              Resource:
+                - !Sub arn:aws:s3:::manage-help-content/${Stage}/*
       Handler: managehelpcontentpublisher.Handler::handleRequest
       Runtime: java11
       CodeUri:
-        Bucket: support-service-lambdas-dist
-        Key: !Sub membership/${Stage}/contact-us-api/contact-us-api.jar
+        Bucket: membership-dist
+        Key: !Sub membership/${Stage}/${AppName}/${AppName}.jar
       Timeout: 30
-      MemorySize: 256
+      MemorySize: 2048
       Events:
         ApiEvent:
           Type: Api

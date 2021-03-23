@@ -9,6 +9,8 @@ import software.amazon.awssdk.services.s3.S3Client
 import software.amazon.awssdk.services.s3.model.PutObjectRequest
 import upickle.default._
 
+import java.io.File
+import scala.io.Source
 import scala.sys.env
 import scala.util.Try
 
@@ -36,7 +38,10 @@ object Handler {
 
   def main(args: Array[String]): Unit = {
     println(s"Using config: $config")
-    result(args(0)) match {
+    val inFile = Source.fromFile(new File(args(0)))
+    val input = inFile.mkString
+    inFile.close()
+    result(input) match {
       case Left(e)    => println(s"Failed: ${e.reason}")
       case Right(obj) => println(s"Success!: ${obj.render(indent = 2)}")
     }
@@ -67,10 +72,11 @@ object Handler {
     folder = config.awsConfig.articlesFolder
   ) _
 
-  private def result(articleJsonString: String) = for {
-    article <- Try(read[Article](articleJsonString)).toEither.left.map(e =>
+  private def result(jsonString: String) = for {
+    input <- Try(read[InputModel](jsonString)).toEither.left.map(e =>
       Failure(s"Failed to read article from input: ${e.getMessage}")
     )
+    article = Article.fromInput(input.article)
     json <- Right(toJson(article))
     _ <- storeArticleInS3(s"${article.path}.json", json)
   } yield json

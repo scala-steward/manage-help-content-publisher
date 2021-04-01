@@ -12,7 +12,7 @@ object Dependencies {
   lazy val circeParser = "io.circe" %% "circe-parser" % circeVersion
   lazy val jsoup = "org.jsoup" % "jsoup" % "1.13.1"
   lazy val zip = "org.zeroturnaround" % "zt-zip" % "1.14"
-  lazy val utest = "com.lihaoyi" %% "utest" % "0.7.7"
+  lazy val utest = "com.lihaoyi" %% "utest" % "0.7.8"
   lazy val awsLambda = "com.amazonaws" % "aws-lambda-java-core" % "1.2.1"
   lazy val awsEvents = "com.amazonaws" % "aws-lambda-java-events" % "3.8.0"
   lazy val s3 = "software.amazon.awssdk" % "s3" % "2.16.23"

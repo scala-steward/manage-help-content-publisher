@@ -3,7 +3,9 @@ package managehelpcontentpublisher
 import build.BuildInfo.buildNumber
 import com.amazonaws.services.lambda.runtime.Context
 import com.amazonaws.services.lambda.runtime.events.{APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent}
-import ujson.Obj
+import ujson.{Obj, Str}
+
+import scala.jdk.CollectionConverters._
 
 object Logging {
 
@@ -15,8 +17,17 @@ object Logging {
 
   def logError(context: Context, message: String): Unit = log(context, "ERROR", Obj("message" -> message))
 
-  def logRequest(context: Context, request: APIGatewayProxyRequestEvent): Unit =
-    logInfo(context, "Request", Obj("body" -> request.getBody))
+  def logRequest(context: Context, request: APIGatewayProxyRequestEvent): Unit = {
+    def toValue(s: Option[String]): ujson.Value = s.map(str => Str(str)).getOrElse(ujson.Null)
+    logInfo(
+      context,
+      "Request",
+      Obj(
+        "pathParameters" -> toValue(Option(request.getPathParameters.asScala).map(_.toString)),
+        "body" -> toValue(Option(request.getBody))
+      )
+    )
+  }
 
   def logResponse(context: Context, response: APIGatewayProxyResponseEvent): Unit = {
     logInfo(

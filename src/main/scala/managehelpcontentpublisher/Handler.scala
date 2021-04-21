@@ -1,33 +1,20 @@
 package managehelpcontentpublisher
 
 import com.amazonaws.services.lambda.runtime.Context
-import com.amazonaws.services.lambda.runtime.events.{APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent}
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent
+import managehelpcontentpublisher.Logging.{logError, logPublished}
+import managehelpcontentpublisher.PublishingHandler.publishContents
 
 import java.io.File
 import scala.io.Source
-import Logging._
 
 object Handler {
 
-  def handleRequest(request: APIGatewayProxyRequestEvent, context: Context): APIGatewayProxyResponseEvent = {
-    logRequest(context, request)
-    val response = publishContents(request.getBody) match {
-      case Left(e) =>
-        logError(context, e.reason)
-        new APIGatewayProxyResponseEvent().withStatusCode(500).withBody(e.reason)
-      case Right(published) =>
-        published.foreach(logPublished(context))
-        new APIGatewayProxyResponseEvent().withStatusCode(204)
-    }
-    logResponse(context, response)
-    response
-  }
-
-  def main(args: Array[String]): Unit = {
-    val inFile = Source.fromFile(new File(args(0)))
-    val input = inFile.mkString
-    inFile.close()
-    publishContents(input) match {
+  def main(process: String => Either[Failure, Seq[PathAndContent]], in: File): Unit = {
+    val src = Source.fromFile(in)
+    val input = src.mkString
+    src.close()
+    process(input) match {
       case Left(e) => println(s"Failed: ${e.reason}")
       case Right(published) =>
         println(s"Success!")
@@ -35,6 +22,19 @@ object Handler {
     }
   }
 
-  private def publishContents(jsonString: String): Either[Failure, Seq[PathAndContent]] =
-    PathAndContent.publishContents(S3.fetchArticleByPath, S3.fetchTopicByPath, S3.putArticle, S3.putTopic)(jsonString)
+  def buildResponse(context: Context, result: Either[Failure, Seq[PathAndContent]]): APIGatewayProxyResponseEvent =
+    result match {
+      case Left(RequestFailure(reason)) =>
+        logError(context, reason)
+        new APIGatewayProxyResponseEvent().withStatusCode(400).withBody(reason)
+      case Left(NotFoundFailure) =>
+        logError(context, NotFoundFailure.reason)
+        new APIGatewayProxyResponseEvent().withStatusCode(404)
+      case Left(ResponseFailure(reason)) =>
+        logError(context, reason)
+        new APIGatewayProxyResponseEvent().withStatusCode(500).withBody(reason)
+      case Right(published) =>
+        published.foreach(logPublished(context))
+        new APIGatewayProxyResponseEvent().withStatusCode(204)
+    }
 }

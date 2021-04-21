@@ -3,7 +3,12 @@ package managehelpcontentpublisher
 import managehelpcontentpublisher.Config.config
 import software.amazon.awssdk.core.sync.RequestBody
 import software.amazon.awssdk.services.s3.S3Client
-import software.amazon.awssdk.services.s3.model.{GetObjectRequest, NoSuchKeyException, PutObjectRequest}
+import software.amazon.awssdk.services.s3.model.{
+  DeleteObjectRequest,
+  GetObjectRequest,
+  NoSuchKeyException,
+  PutObjectRequest
+}
 
 import java.nio.charset.StandardCharsets.UTF_8
 import scala.util.Try
@@ -28,7 +33,7 @@ object S3 {
       .left
       .flatMap {
         case _: NoSuchKeyException => Right(None)
-        case e                     => Left(Failure(s"Failed to get s3://${config.aws.bucketName}/$key: ${e.getMessage}"))
+        case e                     => Left(ResponseFailure(s"Failed to get s3://${config.aws.bucketName}/$key: ${e.getMessage}"))
       }
 
   def fetchArticleByPath(path: String): Either[Failure, Option[String]] =
@@ -49,8 +54,9 @@ object S3 {
           .build(),
         RequestBody.fromString(content)
       )
-    ).toEither.left
-      .map(e => Failure(s"Failed to put $fullPath: ${e.getMessage}"))
+    ).toEither
+      .left
+      .map(e => ResponseFailure(s"Failed to put $fullPath: ${e.getMessage}"))
       .map(_ => PathAndContent(fullPath, content))
   }
 
@@ -59,4 +65,22 @@ object S3 {
 
   def putTopic(topic: PathAndContent): Either[Failure, PathAndContent] =
     put(s"${config.aws.topicsFolder}/${topic.path}.json", topic.content)
+
+  private def delete(key: String): Either[Failure, String] = {
+    val fullPath = s"s3://${config.aws.bucketName}/$key"
+    Try(
+      client.deleteObject(
+        DeleteObjectRequest
+          .builder()
+          .bucket(config.aws.bucketName)
+          .key(key)
+          .build()
+      )
+    ).toEither
+      .left.map(e => ResponseFailure(s"Failed to delete $fullPath: ${e.getMessage}"))
+      .map(_ => fullPath)
+  }
+
+  def deleteArticleByPath(path: String): Either[Failure, String] =
+    delete(s"${config.aws.articlesFolder}/$path.json")
 }

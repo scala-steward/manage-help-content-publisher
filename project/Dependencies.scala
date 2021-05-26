@@ -1,7 +1,7 @@
 import sbt._
 
 object Dependencies {
-  val circeVersion = "0.13.0"
+  val circeVersion = "0.14.0"
   val upickleVersion = "1.3.15"
 
   lazy val http = "org.scalaj" %% "scalaj-http" % "2.4.2"

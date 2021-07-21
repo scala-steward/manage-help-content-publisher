@@ -2,7 +2,7 @@ package managehelpcontentpublisher
 
 import org.jsoup._
 import org.jsoup.nodes._
-import org.jsoup.safety.Whitelist
+import org.jsoup.safety.Safelist
 
 import scala.jdk.CollectionConverters._
 
@@ -66,7 +66,7 @@ object Html {
   }
 
   def unsupportedAttributesRemoved(e: Element): Element =
-    Jsoup.parseBodyFragment(Jsoup.clean(e.clone().outerHtml, Whitelist.relaxed())).body
+    Jsoup.parseBodyFragment(Jsoup.clean(e.clone().outerHtml, Safelist.relaxed())).body
 
   def emptyParagraphsRemoved(e: Element): Element = {
     val cleaned = e.clone()

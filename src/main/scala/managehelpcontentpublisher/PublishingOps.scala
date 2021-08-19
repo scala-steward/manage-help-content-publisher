@@ -6,13 +6,11 @@ import java.net.URI
   */
 trait PublishingOps {
 
-  /** Fetches the current state of the published article with the given path
-    * or None if there is no such article.
+  /** Fetches the current state of the published article with the given path or None if there is no such article.
     */
   def fetchArticleByPath(path: String): Either[Failure, Option[String]]
 
-  /** Fetches the current state of the published topic with the given path
-    * or None if there is no such topic.
+  /** Fetches the current state of the published topic with the given path or None if there is no such topic.
     */
   def fetchTopicByPath(path: String): Either[Failure, Option[String]]
 

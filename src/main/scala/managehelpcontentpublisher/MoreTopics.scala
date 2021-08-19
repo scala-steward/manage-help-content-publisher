@@ -19,13 +19,17 @@ object MoreTopics {
     topics
   )
 
-  /** Creates new MoreTopics with a combination of the existing topic lists and the given new topic lists.
-    * Core topics are not included in MoreTopics.
+  /** Creates new MoreTopics with a combination of the existing topic lists and the given new topic lists. Core topics
+    * are not included in MoreTopics.
     *
-    * @param oldMoreTopics Base for the new MoreTopics if there is a pre-existing instance.
-    * @param articleToRemove An article to remove from all topic lists before adding new topics.
-    * @param newTopics New topic lists to add to the base list, replacing any lists with the same paths.
-    * @return New instance combining the old instance and the new lists.
+    * @param oldMoreTopics
+    *   Base for the new MoreTopics if there is a pre-existing instance.
+    * @param articleToRemove
+    *   An article to remove from all topic lists before adding new topics.
+    * @param newTopics
+    *   New topic lists to add to the base list, replacing any lists with the same paths.
+    * @return
+    *   New instance combining the old instance and the new lists.
     */
   def withNewTopics(
       oldMoreTopics: Option[MoreTopics],
@@ -47,9 +51,8 @@ object MoreTopics {
   }
 
   def readMoreTopics(jsonString: String): Either[Failure, MoreTopics] =
-    Try(read[MoreTopics](jsonString)).toEither.left.map(e =>
-      ResponseFailure(s"Failed to read more topics from '$jsonString': ${e.getMessage}")
-    )
+    Try(read[MoreTopics](jsonString))
+      .toEither.left.map(e => ResponseFailure(s"Failed to read more topics from '$jsonString': ${e.getMessage}"))
 
   def writeMoreTopics(moreTopics: MoreTopics): Either[Failure, String] =
     Try(write(moreTopics)).toEither.left.map(e => ResponseFailure(s"Failed to write $moreTopics: ${e.getMessage}"))

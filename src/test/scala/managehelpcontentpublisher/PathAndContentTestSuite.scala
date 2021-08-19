@@ -5,7 +5,8 @@ import utest._
 import java.net.URI
 import scala.io.Source
 
-/** See [[https://github.com/guardian/salesforce/blob/master/force-app/main/default/classes/ArticleBodyValidation.cls#L5-L20 list of HTML elements we support in Salesforce]].
+/** See
+  * [[https://github.com/guardian/salesforce/blob/master/force-app/main/default/classes/ArticleBodyValidation.cls#L5-L20 list of HTML elements we support in Salesforce]].
   */
 object PathAndContentTestSuite extends TestSuite {
 

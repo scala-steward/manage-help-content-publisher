@@ -37,7 +37,7 @@ object S3 {
       .left
       .flatMap {
         case _: NoSuchKeyException => Right(None)
-        case e                     => Left(ResponseFailure(s"Failed to get s3://${config.aws.bucketName}/$key: ${e.getMessage}"))
+        case e => Left(ResponseFailure(s"Failed to get s3://${config.aws.bucketName}/$key: ${e.getMessage}"))
       }
 
   private def put(key: String, content: String): Either[Failure, PathAndContent] = {

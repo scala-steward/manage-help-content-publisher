@@ -8,15 +8,9 @@ import scala.io.Source
 
 /** Generates a Salesforce Knowledge import file.
   *
-  * Expected commandline args:
-  * <ol>
-  * <li>Capi key</li>
-  * <li>Capi domain</li>
-  * <li>CSV file holding a row for each Capi article path and its new Help Centre topics<br />
-  * For example:<br />
-  * <code>help/2021/feb/08/getting-started-with-your-digital-subscription,The_Guardian_apps,Billing</code>
-  * </li>
-  * </ol>
+  * Expected commandline args: <ol> <li>Capi key</li> <li>Capi domain</li> <li>CSV file holding a row for each Capi
+  * article path and its new Help Centre topics<br /> For example:<br />
+  * <code>help/2021/feb/08/getting-started-with-your-digital-subscription,The_Guardian_apps,Billing</code> </li> </ol>
   */
 object Main extends App {
 

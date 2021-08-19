@@ -4,13 +4,14 @@ import org.zeroturnaround.zip.ByteSource
 
 import java.nio.charset.StandardCharsets.UTF_8
 
-/** <p>The Salesforce Knowledge import requires a CSV file with a row per article.<br />
-  * Rich-text fields are treated specially: the CSV field holds a path relative to the CSV file where a HTML file
-  * can be found containing the content of the field.</p>
-  * <p>The CSV file and all the rich-text files have to be packed together into a zip file.</p>
+/** <p>The Salesforce Knowledge import requires a CSV file with a row per article.<br /> Rich-text fields are treated
+  * specially: the CSV field holds a path relative to the CSV file where a HTML file can be found containing the content
+  * of the field.</p> <p>The CSV file and all the rich-text files have to be packed together into a zip file.</p>
   *
-  * @param csv Multi-line string holding the content of the CSV file
-  * @param articleBodies Seq of HTML contents of article body fields
+  * @param csv
+  *   Multi-line string holding the content of the CSV file
+  * @param articleBodies
+  *   Seq of HTML contents of article body fields
   */
 case class ImportStructure(csv: String, articleBodies: Seq[ByteSource])
 

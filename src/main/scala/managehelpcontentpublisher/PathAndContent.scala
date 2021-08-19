@@ -62,14 +62,15 @@ object PathAndContent {
   private def pingGoogle(): Future[HttpResponse[String]] =
     Future(Http(s"${config.sitemap.googlePingUrl}?sitemap=${config.sitemap.url}").asString)
 
-  /** Publishes the contents of the given Json string
-    * to representations of an Article and multiple Topics
-    * suitable to be rendered by a web layer.
+  /** Publishes the contents of the given Json string to representations of an Article and multiple Topics suitable to
+    * be rendered by a web layer.
     *
-    * @param publishingOps Operations to read and write content to and from storage accessible to the web layer.
-    * @param jsonString A Json object holding all the data needed to publish an Article and its Topics.
-    * @return List of PathAndContents published.<br />
-    *         The meaning of Path depends on the implementation of publishingOps.
+    * @param publishingOps
+    *   Operations to read and write content to and from storage accessible to the web layer.
+    * @param jsonString
+    *   A Json object holding all the data needed to publish an Article and its Topics.
+    * @return
+    *   List of PathAndContents published.<br /> The meaning of Path depends on the implementation of publishingOps.
     */
   def publishContents(publishingOps: PublishingOps)(jsonString: String): Either[Failure, Seq[PathAndContent]] = {
 
@@ -121,13 +122,15 @@ object PathAndContent {
     ) ++ publishedTopics ++ publishedMoreTopics.toSeq ++ topicsArticleRemovedFrom ++ updatedSitemap.toSeq
   }
 
-  /** Takes down the Article with the given path
-    * and removes it from any published Topics and MoreTopics it belonged to.
+  /** Takes down the Article with the given path and removes it from any published Topics and MoreTopics it belonged to.
     *
-    * @param publishingOps Operations to read and write content to and from storage accessible to the web layer.
-    * @param path Path to published representation of the article.
-    * @return List of PathAndContents modified.<br />
-    *         The meaning of Path depends on the implementation of deleteArticleByPath and storeTopic.
+    * @param publishingOps
+    *   Operations to read and write content to and from storage accessible to the web layer.
+    * @param path
+    *   Path to published representation of the article.
+    * @return
+    *   List of PathAndContents modified.<br /> The meaning of Path depends on the implementation of deleteArticleByPath
+    *   and storeTopic.
     */
   def takeDownArticle(publishingOps: PublishingOps)(path: String): Either[Failure, Seq[PathAndContent]] = {
 

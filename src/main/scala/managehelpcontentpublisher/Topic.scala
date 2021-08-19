@@ -12,13 +12,14 @@ object Topic {
 
   def fromInput(input: InputModel): Seq[Topic] = {
     val titles = input.article.dataCategories.map(cat => cat.name -> cat.label).toMap
-    input.dataCategories.map(cat =>
-      Topic(
-        path = cleanCustomFieldName(cat.name),
-        title = titles(cat.name),
-        articles = cat.publishedArticles.map(TopicArticle.fromInput).sortBy(_.title)
+    input
+      .dataCategories.map(cat =>
+        Topic(
+          path = cleanCustomFieldName(cat.name),
+          title = titles(cat.name),
+          articles = cat.publishedArticles.map(TopicArticle.fromInput).sortBy(_.title)
+        )
       )
-    )
   }
 
   def readTopic(jsonString: String): Either[Failure, Topic] =

@@ -36,8 +36,8 @@ object ArticleTopic {
     title = cat.label
   )
 
-  /** Gives the list of topics that have been removed between the two given versions of an article.
-    * If there is no previous version, gives an empty list.
+  /** Gives the list of topics that have been removed between the two given versions of an article. If there is no
+    * previous version, gives an empty list.
     */
   def topicsArticleRemovedFrom(curr: Article, prev: Option[Article]): Seq[ArticleTopic] =
     prev.map(_.topics.diff(curr.topics)).getOrElse(Nil)

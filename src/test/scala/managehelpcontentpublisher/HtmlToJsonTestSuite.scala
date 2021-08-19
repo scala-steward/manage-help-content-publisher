@@ -2,7 +2,8 @@ package managehelpcontentpublisher
 
 import utest._
 
-/** See [[https://github.com/guardian/salesforce/blob/master/force-app/main/default/classes/ArticleBodyValidation.cls#L5-L20 list of HTML elements we support in Salesforce]].
+/** See
+  * [[https://github.com/guardian/salesforce/blob/master/force-app/main/default/classes/ArticleBodyValidation.cls#L5-L20 list of HTML elements we support in Salesforce]].
   */
 object HtmlToJsonTestSuite extends TestSuite {
   val tests: Tests = Tests {
